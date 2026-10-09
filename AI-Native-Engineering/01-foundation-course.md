@@ -1,19 +1,24 @@
 # AI Native Engineering — Foundation Course
 
-**Training:** Virtusa AI Native Engineering  
 **Topic:** Introduction to AI organizations, language models, and interfaces
 
 ## Organizations, LLM Models, and Interfaces
 
 | No. | Organization | LLM model / platform | Interface |
 |---:|---|---|---|
-| 1 | OpenAI | GPT | ChatGPT |
-| 2 | Google | Gemini | Google Gemini |
-| 3 | Meta | Llama | — |
-| 4 | Alibaba | Qwen | Qwen.ai |
-| 5 | DeepSeek | DeepSeek | DeepSeek.ai |
-| 6 | Anthropic | Claude | Claude.ai |
-| 7 | xAI | Grok | — |
-| 8 | Snowflake | Cortex | — |
+| 1 | OpenAI | GPT models | [ChatGPT](https://chatgpt.com/) |
+| 2 | Google | Gemini models | [Gemini](https://gemini.google.com/) |
+| 3 | Meta | Llama models | [Meta AI](https://www.meta.ai/) |
+| 4 | Alibaba | Qwen models | [Qwen Chat](https://chat.qwen.ai/) |
+| 5 | DeepSeek | DeepSeek models | [DeepSeek Chat](https://chat.deepseek.com/) |
+| 6 | Anthropic | Claude models | [Claude](https://claude.ai/) |
+| 7 | xAI | Grok models | [Grok](https://grok.com/) |
+| 8 | Snowflake | Cortex AI (AI platform and services) | [Snowflake](https://www.snowflake.com/) — access Cortex AI through a Snowflake account and its Snowsight interface |
 
-> **Note:** This table is transcribed from handwritten training notes. A dash (—) means the interface was not specified in the original notes. Snowflake Cortex is a platform rather than a single LLM model.
+## Quick notes
+
+- **LLM** stands for *large language model*.
+- GPT, Gemini, Llama, Qwen, DeepSeek, Claude, and Grok are model families.
+- **Snowflake Cortex AI** is a set of AI capabilities integrated into Snowflake's data platform, not one standalone LLM.
+- Interfaces and product URLs can change over time; some features may require an account or may vary by region.
+
