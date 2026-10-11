@@ -45,35 +45,39 @@ A typical neural network has:
 The diagram below shows a simple feed-forward neural network. Each connection has a weight; neurons combine their inputs with a bias and apply an activation function.
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100, "curve": "linear"}}}%%
 flowchart LR
-    subgraph I["Input layer"]
-        X1["x₁"]
-        X2["x₂"]
-        X3["x₃"]
+    subgraph I["INPUT LAYER"]
+        direction TB
+        X1(["x₁"])
+        X2(["x₂"])
+        X3(["x₃"])
     end
 
-    subgraph H["Hidden layer"]
-        H1["Neuron 1"]
-        H2["Neuron 2"]
-        H3["Neuron 3"]
+    subgraph H["HIDDEN LAYER"]
+        direction TB
+        H1(["Neuron 1"])
+        H2(["Neuron 2"])
+        H3(["Neuron 3"])
     end
 
-    subgraph O["Output layer"]
-        Y["Prediction ŷ"]
+    subgraph O["OUTPUT LAYER"]
+        direction TB
+        Y(["Prediction ŷ"])
     end
 
-    X1 -->|"w₁₁"| H1
-    X1 -->|"w₁₂"| H2
-    X1 -->|"w₁₃"| H3
-    X2 -->|"w₂₁"| H1
-    X2 -->|"w₂₂"| H2
-    X2 -->|"w₂₃"| H3
-    X3 -->|"w₃₁"| H1
-    X3 -->|"w₃₂"| H2
-    X3 -->|"w₃₃"| H3
-    H1 -->|"weights"| Y
-    H2 -->|"weights"| Y
-    H3 -->|"weights"| Y
+    X1 --> H1
+    X1 --> H2
+    X1 --> H3
+    X2 --> H1
+    X2 --> H2
+    X2 --> H3
+    X3 --> H1
+    X3 --> H2
+    X3 --> H3
+    H1 --> Y
+    H2 --> Y
+    H3 --> Y
 ```
 
 **How information flows:**
@@ -103,14 +107,16 @@ For a classification task, the output might be a class or a probability, such as
 ### Neural-network training loop
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 35, "rankSpacing": 45, "curve": "linear"}}}%%
 flowchart TD
-    A["Input training data"] --> B["Forward propagation"]
-    B --> C["Prediction"]
-    C --> D["Calculate loss against expected answer"]
-    D --> E["Backpropagation: calculate gradients"]
-    E --> F["Update weights and biases"]
-    F --> B
-    D -. "Repeat until model is sufficiently trained" .-> G["Trained model"]
+    A["1. Input training data"] --> B["2. Forward propagation"]
+    B --> C["3. Produce prediction"]
+    C --> D["4. Calculate loss"]
+    D --> E["5. Backpropagation"]
+    E --> F["6. Update weights and biases"]
+    F --> G["Repeat for more training examples / epochs"]
+    G --> B
+    G --> H["Training complete"]
 ```
 
 1. Pass inputs through the network (forward propagation).
