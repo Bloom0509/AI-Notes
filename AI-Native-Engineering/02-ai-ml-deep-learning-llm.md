@@ -40,6 +40,49 @@ A typical neural network has:
 - **Hidden layer(s):** Transform the information.
 - **Output layer:** Produces a prediction.
 
+### Reference diagram: Neural network
+
+The diagram below shows a simple feed-forward neural network. Each connection has a weight; neurons combine their inputs with a bias and apply an activation function.
+
+```mermaid
+flowchart LR
+    subgraph I["Input layer"]
+        X1["x₁"]
+        X2["x₂"]
+        X3["x₃"]
+    end
+
+    subgraph H["Hidden layer"]
+        H1["Neuron 1"]
+        H2["Neuron 2"]
+        H3["Neuron 3"]
+    end
+
+    subgraph O["Output layer"]
+        Y["Prediction ŷ"]
+    end
+
+    X1 -->|"w₁₁"| H1
+    X1 -->|"w₁₂"| H2
+    X1 -->|"w₁₃"| H3
+    X2 -->|"w₂₁"| H1
+    X2 -->|"w₂₂"| H2
+    X2 -->|"w₂₃"| H3
+    X3 -->|"w₃₁"| H1
+    X3 -->|"w₃₂"| H2
+    X3 -->|"w₃₃"| H3
+    H1 -->|"weights"| Y
+    H2 -->|"weights"| Y
+    H3 -->|"weights"| Y
+```
+
+**How information flows:**
+
+1. Input features (`x₁, x₂, x₃`) enter the network.
+2. Each connection scales the input by a learned **weight** (`w`).
+3. Neurons combine weighted inputs with a **bias** (`b`) and apply an **activation function**.
+4. The output layer produces a prediction (`ŷ`).
+
 Important terms:
 
 - **Inputs (x₁, x₂, x₃):** Input features.
@@ -58,6 +101,17 @@ A simplified neuron calculation is:
 For a classification task, the output might be a class or a probability, such as spam/not spam.
 
 ### Neural-network training loop
+
+```mermaid
+flowchart TD
+    A["Input training data"] --> B["Forward propagation"]
+    B --> C["Prediction"]
+    C --> D["Calculate loss against expected answer"]
+    D --> E["Backpropagation: calculate gradients"]
+    E --> F["Update weights and biases"]
+    F --> B
+    D -. "Repeat until model is sufficiently trained" .-> G["Trained model"]
+```
 
 1. Pass inputs through the network (forward propagation).
 2. Compare the prediction with the expected answer and calculate the loss.
