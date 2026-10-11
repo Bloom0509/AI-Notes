@@ -10,7 +10,15 @@ AI learns by recognizing patterns in data. Data is fed to a model, which learns 
 
 The model is trained using data. During inference, the trained model uses what it learned to make a prediction.
 
-**Example:** Given examples of emails labeled “spam” and “not spam,” a model can learn patterns and predict whether a new email is spam.
+**Example — spam detection:**
+
+| Training email | Label |
+|---|---|
+| “You won a prize! Click now” | Spam |
+| “Meeting moved to 3 PM” | Not spam |
+| “Claim your free gift” | Spam |
+
+During training, the model learns patterns associated with each label. During inference, it can classify a new email such as “Claim your reward today” as likely spam. This is a simplified illustration; real systems use many examples and features.
 
 ## 2. What Is AI?
 
@@ -29,6 +37,14 @@ AI
 └── Machine Learning (ML)
     └── Deep Learning (DL)
 ```
+
+**Examples:**
+
+- **AI:** A rule-based program that plays chess.
+- **ML:** A model trained on past house sales to estimate a house price.
+- **DL:** A neural network trained on many labeled images to recognize cats and dogs.
+
+These are illustrative examples; AI includes approaches beyond machine learning, and not every AI system uses deep learning.
 
 ## 3. What Is a Neural Network?
 
@@ -102,6 +118,17 @@ A simplified neuron calculation is:
 
 `output = activation(x₁w₁ + x₂w₂ + x₃w₃ + b)`
 
+**Worked example (illustrative numbers):**
+
+Suppose one neuron receives inputs `x₁ = 1`, `x₂ = 0`, and `x₃ = 1`, with weights `w₁ = 0.5`, `w₂ = -0.2`, `w₃ = 0.8`, and bias `b = 0.1`.
+
+```text
+weighted sum = (1 × 0.5) + (0 × -0.2) + (1 × 0.8) + 0.1
+             = 1.4
+```
+
+If the activation function is sigmoid, the output is approximately `0.80`. In a suitable binary-classification setup, this could be interpreted as a score for the positive class. The numbers are for learning only, not a trained model.
+
 For a classification task, the output might be a class or a probability, such as spam/not spam.
 
 ### Neural-network training loop
@@ -140,9 +167,16 @@ An LLM is a model trained on large amounts of text to learn language patterns. D
 
 The model generates a response based on patterns learned during training and the context provided. Its output can be useful, but it is not guaranteed to be correct; verify important information.
 
-**Example question:** “What is the capital of India?”
+**Examples:**
 
-An LLM may answer “New Delhi.” This illustrates generating a likely response from learned language patterns, not a guarantee that every answer is accurate.
+| Task | Example prompt | Example output |
+|---|---|---|
+| Question answering | “What is the capital of India?” | “New Delhi.” |
+| Summarization | “Summarize this meeting note in three bullets.” | Three concise bullets |
+| Translation | “Translate ‘Good morning’ into French.” | “Bonjour.” |
+| Code assistance | “Write a Python function that adds two numbers.” | A Python function |
+
+These are illustrative outputs. A model can make mistakes, so verify important facts and generated code.
 
 ## 5. What Are Tokens?
 
@@ -154,6 +188,8 @@ Key points:
 - Tokens are represented internally by **token IDs**.
 - A token ID is a numeric identifier for a token.
 - One word does not always equal one token: a word may map to multiple tokens, and some tokens may include spaces or punctuation.
+
+**Example:** The sentence `"AI models learn patterns."` is split into tokens before processing. Depending on the tokenizer, a token might be a whole word, part of a word, punctuation, or a word with a leading space. The exact token boundaries and token IDs vary by tokenizer; do not assume one word always equals one token.
 
 Try the tokenizer: [OpenAI Tokenizer](https://platform.openai.com/tokenizer).
 
@@ -170,6 +206,8 @@ Depending on the model and application, the context may include:
 
 The context window is measured in tokens. If the total content exceeds the model's limit, some content may need to be removed, shortened, or summarized.
 
+**Example:** In a conversation about planning a trip, the context may include the original request, budget, dates, preferences, relevant follow-up messages, and the response being generated. If a long conversation or document exceeds the model's context limit, the application may need to shorten it, retrieve only relevant sections, or summarize earlier details.
+
 A larger context window allows a model to process more information at once, but it does not automatically guarantee better answers. Context limits vary by model and version, so check the model's current documentation rather than relying on fixed figures.
 
 ## 7. What Are Vectors and Embeddings?
@@ -181,6 +219,10 @@ A **vector** is an ordered list of numbers, for example:
 In machine learning, an **embedding** is a numerical vector representing an item such as text, an image, or another piece of data. Embeddings can encode useful semantic features so that similar items may have vectors that are close together in the embedding space.
 
 A simple illustration might assign different IDs to words such as “cat,” “dog,” and “lion,” but these single numbers are not real semantic embeddings. Real embeddings usually contain many dimensions.
+
+**Example — semantic similarity:** Imagine a user searches for “How do I reset my password?” A semantic search system may retrieve a help article titled “Recover access to your account,” even though the wording differs, because their meanings are similar.
+
+A tiny vector such as `[0.05, 0.3, 0.5]` is only a format example; actual embedding values and dimensions depend on the embedding model.
 
 Embeddings are useful because they can:
 
@@ -196,11 +238,15 @@ Vectorization is the process of converting data into a numerical representation 
 
 `Text → Tokenization / model processing → Vector (embedding)`
 
+**Example:** An application stores embeddings for several help articles. When a user asks, “How can I change my login password?”, it converts the query into an embedding and compares it with the stored article embeddings. It can then retrieve a relevant article such as “Resetting your account password.”
+
 Embeddings can help an application retrieve text that is semantically related to a user's question.
 
 ## 9. What Is a Vector Embedding?
 
 A vector embedding is a numerical representation of data—such as a word, sentence, document, or image—in a vector space. It is designed to capture useful characteristics of the item.
+
+**Example:** Two sentences—“My car needs repair” and “I need to fix my vehicle”—use different words but have similar meanings. An embedding model may map them to nearby points in vector space. The vectors shown in this example are conceptual; real embeddings are model-generated arrays with many dimensions.
 
 In short, an embedding is a numerical representation that helps a system compare meaning or similarity.
 
@@ -210,4 +256,9 @@ Attention is a mechanism used by Transformer-based models to determine which par
 
 For example, the meaning of the word “it” in a sentence depends on the surrounding words. Attention helps a model use context to represent relationships between tokens.
 
-Attention helps a model relate tokens within the available context; it does not guarantee that the model will understand code or natural language correctly.
+**Example — the word “bank”:**
+
+- “She deposited money at the **bank**.” — surrounding words suggest a financial institution.
+- “They had a picnic on the river **bank**.” — surrounding words suggest the land beside a river.
+
+Attention helps a Transformer model use surrounding tokens to represent the appropriate context. It does not guarantee that the model will interpret every sentence correctly.
