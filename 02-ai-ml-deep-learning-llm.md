@@ -262,3 +262,293 @@ For example, the meaning of the word “it” in a sentence depends on the surro
 - “They had a picnic on the river **bank**.” — surrounding words suggest the land beside a river.
 
 Attention helps a Transformer model use surrounding tokens to represent the appropriate context. It does not guarantee that the model will interpret every sentence correctly.
+
+
+### Attention scores and vectors (continuation)
+
+In Transformer models, an input token is represented by a vector. The model derives **query (Q), key (K), and value (V)** vectors from token representations.
+
+- **Query:** What information is this token looking for?
+- **Key:** What information does each token offer for matching?
+- **Value:** What information is passed forward when a token is attended to?
+
+The model compares queries with keys to calculate attention scores. These scores are normalized and used to combine value vectors. In scaled dot-product attention, the score calculation is commonly written as:
+
+`Attention(Q, K, V) = softmax(QKᵀ / √dₖ)V`
+
+Here, `dₖ` is the dimension of the key vectors. This is a mathematical operation performed by the model; it is not a manually written Python `if` statement.
+
+**Simple intuition:** In “The animal didn't cross the street because it was tired,” attention can help the model relate “it” to “the animal,” depending on the learned representations and context.
+
+## 11. What Is a Transformer?
+
+A **Transformer** is a neural-network architecture that uses attention mechanisms to process sequences of data. Transformers are the foundation of many modern large language models.
+
+A language model may include many Transformer blocks. A typical block contains an attention component and a feed-forward neural network (FFN), along with residual connections and normalization layers.
+
+### Transformer architecture reference diagram
+
+```mermaid
+flowchart TD
+    A["Input tokens"] --> B["Token embeddings + positional information"]
+    B --> C["Multi-head self-attention"]
+    C --> D["Add & normalize"]
+    D --> E["Feed-forward neural network (FFN)"]
+    E --> F["Add & normalize"]
+    F --> G{"More Transformer blocks?"}
+    G -- Yes --> C
+    G -- No --> H["Output representations"]
+    H --> I["Language-model head"]
+    I --> J["Next-token scores / prediction"]
+```
+
+**How it works:**
+
+1. The input text is tokenized.
+2. Tokens are converted into vector embeddings; positional information helps represent token order.
+3. Self-attention lets token representations incorporate information from other relevant tokens.
+4. The feed-forward network further transforms each token representation.
+5. The model repeats these operations across multiple layers.
+6. For a generative language model, the final representations are used to score possible next tokens.
+
+**Example:** For the prompt “The capital of India is …”, a language model uses the preceding context to score likely next tokens. “New” may be followed by “Delhi,” producing “New Delhi.” The model predicts tokens; it does not simply look up a fact in every case.
+
+**Complexity note:** Standard self-attention has computation and memory costs that typically scale quadratically with sequence length, often described as (O(n^2)) in the sequence length (n). Implementations and newer attention variants can change practical costs.
+
+## 12. What Is Fine-Tuning?
+
+**Fine-tuning** means taking a pretrained model and training it further on a more specific dataset to adapt its behavior to a task or domain.
+
+```mermaid
+flowchart TD
+    A["Pretrained base model"] --> B["Domain-specific examples"]
+    B --> C["Fine-tuning process"]
+    A --> C
+    C --> D["Fine-tuned model"]
+    D --> E["Task-specific evaluation"]
+```
+
+Possible domains and use cases include:
+
+| Domain | Example use case |
+|---|---|
+| Medical | Classifying or summarizing clinical text under expert oversight |
+| Finance | Categorizing financial documents or extracting defined fields |
+| Legal | Classifying legal documents or assisting with clause extraction |
+
+**Example:** A company has thousands of reviewed support messages labeled by category. It may fine-tune a suitable base model to classify new messages into those categories.
+
+**Important distinction:** Fine-tuning changes model parameters. Supplying relevant documents through retrieval (RAG) gives the model extra information at response time without necessarily changing its parameters. Fine-tuning alone is not a reliable way to keep a model updated with every new fact.
+
+## 13. What Is Self-Supervised Learning?
+
+**Self-supervised learning** is a training approach in which a model creates a learning signal from the data itself, rather than relying entirely on humans to label every example.
+
+A model may hide or remove part of the input and learn to predict it, or learn to predict the next token in a sequence.
+
+```mermaid
+flowchart TD
+    A["Raw, largely unlabeled data"] --> B["Create a prediction task from the data"]
+    B --> C["Model makes a prediction"]
+    C --> D["Compare prediction with target derived from data"]
+    D --> E["Update model parameters"]
+    E --> B
+```
+
+**Example — next-token prediction:** Given “The sun rises in the …”, the training target may be “east.” The model learns from many text sequences by predicting tokens from their preceding context.
+
+**Another example — masked text:** A training sentence might be “Paris is the [MASK] of France.” The model learns to predict the missing word “capital.”
+
+Self-supervised learning is widely used to pretrain language models. It is different from supervised learning, where examples are typically paired with labels supplied or reviewed by people.
+
+## 14. What Is Reinforcement Learning?
+
+**Reinforcement learning (RL)** is a machine-learning approach in which an **agent** takes actions in an **environment** and learns from rewards or penalties. The objective is to learn a policy that maximizes expected cumulative reward over time.
+
+### Main components
+
+| Component | Meaning |
+|---|---|
+| Agent | The learner or decision-making system |
+| Environment | The world or system the agent interacts with |
+| Action | A choice made by the agent |
+| Reward | Feedback indicating how useful an outcome was |
+| Policy | The strategy used to select actions |
+
+```mermaid
+flowchart LR
+    A["Agent"] -->|"Action"| B["Environment"]
+    B -->|"State + reward"| A
+```
+
+**Example — a maze:** An agent receives a positive reward for reaching the exit and a penalty for hitting obstacles. Over repeated attempts, it can learn actions that lead to higher cumulative rewards.
+
+In some language-model training pipelines, reinforcement learning or related preference-optimization methods can be used to encourage responses that better match human preferences or specified goals. The exact training method varies by system.
+
+## 15. What Is RAG (Retrieval-Augmented Generation)?
+
+**Retrieval-Augmented Generation (RAG)** improves an LLM response by retrieving relevant information from an external knowledge source and providing that information to the model before it generates an answer.
+
+### RAG workflow
+
+```mermaid
+flowchart TD
+    A["User question"] --> B["Search / retrieval"]
+    K["Knowledge base or documents"] --> C["Chunk and embed documents"]
+    C --> D[("Vector index / search index")]
+    D --> B
+    B --> E["Relevant passages"]
+    E --> F["Question + retrieved context"]
+    A --> F
+    F --> G["LLM"]
+    G --> H["Grounded response"]
+```
+
+**Typical steps:**
+
+1. Collect trusted source documents.
+2. Split documents into smaller sections, often called **chunks**.
+3. Generate embeddings for chunks and index them for retrieval.
+4. Convert the user's question into a suitable search representation.
+5. Retrieve relevant passages from the knowledge base.
+6. Give the question and retrieved passages to the LLM.
+7. Generate a response based on the supplied context, ideally with source references.
+
+**Example — internal company policy:** An employee asks, “How many days of parental leave are available?” A RAG application retrieves the relevant section of the company's current policy and gives it to the LLM to formulate an answer.
+
+**Benefits:** RAG can make answers more relevant to private or frequently updated information and can make source checking easier. It does not eliminate hallucinations; quality depends on retrieval, document freshness, prompt design, and model behavior. Access controls must be enforced so users only retrieve documents they are allowed to see.
+
+## 16. What Is a Vector Database?
+
+A **vector database** stores and searches vector representations (embeddings). It is often used to retrieve items whose embeddings are similar to a query embedding.
+
+### Indexing and query flow
+
+```mermaid
+flowchart TD
+    A["Documents"] --> B["Split into chunks"]
+    B --> C["Generate embeddings"]
+    C --> D[("Vector database / index")]
+    Q["User query"] --> QE["Generate query embedding"]
+    QE --> S["Similarity search"]
+    D --> S
+    S --> R["Top relevant chunks"]
+    R --> L["Pass context to LLM"]
+    L --> O["Response"]
+```
+
+**Example:** A help center contains articles about password resets, account recovery, billing, and delivery. A user asks, “I can't sign in because I forgot my password.” Vector search can retrieve the account-recovery article even if it does not use the exact phrase “forgot my password.”
+
+### Common concepts
+
+- **Chunking:** Splitting documents into manageable pieces for retrieval.
+- **Embedding:** Converting each chunk into a vector representation.
+- **Similarity search:** Ranking vectors by a measure of closeness, such as cosine similarity or distance.
+- **Metadata filtering:** Restricting results by attributes such as document type, date, or access permissions.
+- **Top-k retrieval:** Returning a selected number of the highest-ranked results.
+
+A vector database is not always required for RAG; smaller systems can use other search indexes, including keyword or hybrid search. The best choice depends on data size, search needs, latency, and operational constraints.
+
+## 17. What Is Few-Shot Prompting?
+
+**Few-shot prompting** means providing a model with a small number of examples in the prompt to show the format or pattern expected in its response. The examples guide the model at inference time; they do not, by themselves, update the model's weights.
+
+### Zero-shot, one-shot, and few-shot
+
+| Technique | What the prompt includes | Example |
+|---|---|---|
+| Zero-shot | Instructions, no examples | “Classify this review as positive or negative: ‘The service was excellent.’” |
+| One-shot | One example | “Review: ‘I loved it.’ Label: Positive. Now label: ‘The service was excellent.’” |
+| Few-shot | A few examples | “Review: ‘Loved it.’ → Positive; ‘Terrible wait.’ → Negative; now classify: ‘The service was excellent.’” |
+
+**Example prompt:**
+
+```text
+Classify each review as Positive or Negative.
+
+Review: "Fast delivery and great quality."
+Label: Positive
+
+Review: "The item arrived broken."
+Label: Negative
+
+Review: "Works perfectly and looks great."
+Label:
+```
+
+Expected output: `Positive`
+
+Few-shot examples are useful for demonstrating output structure, style, and classification criteria. Choose representative examples and avoid including sensitive information unnecessarily.
+
+## 18. What Is the Model Context Protocol (MCP)?
+
+The **Model Context Protocol (MCP)** is an open protocol that standardizes how AI applications connect to external tools and data sources. It can allow an AI application to discover and invoke tools or access permitted resources through MCP servers.
+
+### Simplified MCP interaction
+
+```mermaid
+flowchart LR
+    U["User request"] --> H["AI application / host"]
+    H --> C["MCP client"]
+    C <--> S["MCP server"]
+    S <--> T["External tool or data source"]
+    T --> S
+    S --> C
+    C --> H
+    H --> R["Response to user"]
+```
+
+**Main parts:**
+
+- **Host:** The AI application coordinating the interaction.
+- **MCP client:** The component that communicates with an MCP server.
+- **MCP server:** Exposes permitted tools, resources, or prompts through the protocol.
+- **External system:** For example, a database, file service, or business application.
+
+**Example — company knowledge search:** A user asks, “Find the latest approved travel policy.” The AI application can use an authorized MCP server to query a company document system, receive relevant results, and use them to prepare an answer.
+
+MCP defines how components communicate; it does not automatically grant access to every external system. Configure authentication, authorization, and tool permissions carefully, and validate tool outputs before taking consequential actions.
+
+## 19. What Is Context Engineering?
+
+**Context engineering** is the practice of selecting, structuring, and managing the information supplied to an LLM so it has the right context for a task. It goes beyond writing a single prompt.
+
+Context may include:
+
+- System and task instructions
+- The user's current request and relevant preferences
+- Relevant conversation history or a summary of it
+- Retrieved documents and other RAG results
+- Few-shot examples
+- Tool definitions and results, including tools accessed through MCP
+- Structured data or other task-specific information
+
+### Context-engineering workflow
+
+```mermaid
+flowchart TD
+    A["User request"] --> B["Identify task and constraints"]
+    B --> C["Select relevant context"]
+    R["RAG / retrieved documents"] --> C
+    H["Relevant history and preferences"] --> C
+    I["Instructions and examples"] --> C
+    T["Tool results"] --> C
+    C --> D["Assemble and prioritize context"]
+    D --> E["LLM"]
+    E --> F["Check response and sources"]
+    F --> G["Final answer"]
+```
+
+**Example — travel assistant:** A user asks for a three-day trip plan. Useful context might include the destination, travel dates, budget, mobility needs, previously stated preferences, and current opening hours retrieved from trusted sources. Unrelated conversation history should be left out.
+
+**Good practices:**
+
+1. Include information relevant to the current task rather than everything available.
+2. Put important instructions and constraints where the model can clearly use them.
+3. Retrieve current facts when needed instead of relying only on model memory.
+4. Summarize long histories carefully and preserve critical details.
+5. Track token usage so the context fits within the model's limits.
+6. Protect private data and apply access controls to retrieved documents and tools.
+7. Evaluate outputs for correctness, relevance, and whether they follow the instructions.
+
+**How the concepts fit together:** RAG supplies relevant external knowledge; few-shot prompting supplies examples; MCP connects the AI application to tools and data; context engineering decides how these and other inputs are selected and assembled for the model.
