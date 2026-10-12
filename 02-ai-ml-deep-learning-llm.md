@@ -552,3 +552,209 @@ flowchart TD
 7. Evaluate outputs for correctness, relevance, and whether they follow the instructions.
 
 **How the concepts fit together:** RAG supplies relevant external knowledge; few-shot prompting supplies examples; MCP connects the AI application to tools and data; context engineering decides how these and other inputs are selected and assembled for the model.
+
+
+## 20. What Is a Multimodal Model?
+
+A **multimodal model** can process or work with more than one type of input or output, such as text, images, audio, and video. Some models accept multiple modalities as input; others can also generate content in different modalities. Capabilities vary by model.
+
+Common modalities include:
+
+- Text
+- Images
+- Audio and speech
+- Video
+- Documents that contain text, tables, or images
+
+**Example:** A user uploads a photo of a restaurant menu and asks, “Which dishes are vegetarian?” A multimodal model can inspect the image and answer in text. Another example is asking a model to summarize a meeting recording using its audio.
+
+**Choosing a model:** Use a model that supports the required modality and quality level. For a simple text classification task, a smaller text-only model may be faster and less expensive than a multimodal model.
+
+| Task | Input | Expected output |
+|---|---|---|
+| Image question answering | Photo of a street sign | Text describing the sign |
+| Audio transcription | Speech recording | Written transcript |
+| Video summarization | Video clip | Summary of key events |
+| Document understanding | PDF containing text and tables | Extracted fields or a summary |
+| Text generation | Written prompt | Generated text |
+
+### Multimodal interaction diagram
+
+```mermaid
+flowchart TD
+    T["Text"] --> P["Multimodal model"]
+    I["Image"] --> P
+    A["Audio"] --> P
+    V["Video"] --> P
+    D["Document"] --> P
+    P --> R["Answer, summary, or supported generated output"]
+```
+
+A model may not support every input/output combination. Check its documented capabilities, file limits, and supported formats.
+
+## 21. What Is an AI Agent?
+
+An **AI agent** is a system that uses a model to pursue a goal by choosing steps, using available tools, observing results, and deciding what to do next. Unlike a simple one-shot prompt-and-response flow, an agent can run a multi-step workflow when the application allows it.
+
+### Basic agent workflow
+
+```mermaid
+flowchart TD
+    U["User goal"] --> A["Agent / orchestrator"]
+    A <--> L["LLM: plan and decide"]
+    A --> D{"Need a tool?"}
+    D -- Yes --> T["Select authorized tool"]
+    T --> E["Execute tool"]
+    E --> O["Observe result"]
+    O --> A
+    D -- No --> R["Prepare final response"]
+```
+
+**Example — engineering assistant:** A user asks, “Find the failing tests and explain the likely cause.” An appropriately authorized agent could:
+1. Inspect the test output.
+2. Search relevant source files.
+3. Run an approved test command.
+4. Compare the failure with the code.
+5. Summarize the evidence and suggest a fix.
+
+The agent should not be granted unrestricted access just because it uses an LLM. Use least-privilege tool permissions, validate tool inputs and outputs, require confirmation for risky actions, and log important operations.
+
+### Example: an agent using MCP clients and servers
+
+The following conceptual diagram shows an agent coordinating multiple tool connections. An MCP client communicates with an MCP server; the server exposes the tools or resources it is authorized to provide.
+
+```mermaid
+flowchart LR
+    U["User"] --> A["Agent / orchestrator"]
+    A <--> L["LLM"]
+    A --> C1["MCP client: code tools"]
+    A --> C2["MCP client: ticket tools"]
+    A --> C3["MCP client: knowledge search"]
+    C1 <--> S1["MCP server"]
+    C2 <--> S2["MCP server"]
+    C3 <--> S3["MCP server"]
+```
+
+**Example:** An engineering agent may use one approved tool connection to inspect a repository, another to read issue tickets, and another to search technical documentation. The agent combines the returned information into one response. Tool access and confirmation rules should be enforced by the application, not left solely to the model.
+
+## 22. What Is Chain of Thought and Reasoning in LLMs?
+
+**Chain-of-thought prompting** is a technique that encourages a model to work through a task in intermediate steps before producing an answer. Modern systems may also use reasoning-oriented models that spend additional computation on difficult problems. Their internal reasoning mechanisms differ by model and are not necessarily exposed to the user.
+
+Related approaches and terms include:
+
+- **Step-by-step prompting:** Ask for a structured explanation or solution process.
+- **Tree of thoughts:** Explore and compare multiple candidate approaches.
+- **Graph of thoughts:** Represent relationships among intermediate ideas or partial solutions.
+- **Reasoning model:** A model optimized or configured to perform more deliberate multi-step problem solving.
+
+These labels describe different approaches and are not interchangeable guarantees of correctness.
+
+**Example — a math problem:** Instead of only asking “What is 18% of 250?”, request a concise calculation:
+1. Convert 18% to 0.18.
+2. Multiply 250 by 0.18.
+3. Return 45.
+
+**Example — debugging:** Ask the model to list plausible causes of a failing API test, identify what evidence would distinguish them, and recommend the next diagnostic check. This encourages a verifiable process rather than an unsupported guess.
+
+### Simple answer flow vs. structured reasoning task
+
+```mermaid
+flowchart TD
+    Q["Question"] --> M["LLM"]
+    M --> A["Direct answer"]
+    Q --> R["Reasoning-oriented task"]
+    R --> S["Break into subproblems"]
+    S --> C["Check evidence and intermediate results"]
+    C --> F["Final answer with concise explanation"]
+```
+
+**Important:** A detailed explanation can still be wrong. For high-impact decisions, validate calculations, use reliable sources or tools, and check the final result. Applications should request a useful explanation or summary rather than depend on access to a model's private internal reasoning.
+
+## 23. What Is a Small Language Model (SLM)?
+
+A **small language model (SLM)** is a language model with a comparatively smaller number of parameters or a more compact design than larger models. There is no single parameter-count cutoff that universally defines an SLM.
+
+SLMs can be useful when an application needs lower latency, reduced compute cost, local deployment, or a model specialized for a narrower task. They may be less capable than larger models on some complex or broad tasks, so performance must be evaluated for the intended use.
+
+**Potential use cases:**
+
+- Classifying support tickets
+- Extracting fields from structured business documents
+- Summarizing short internal notes
+- Running language features on-device or in a constrained environment
+- Domain-specific assistants, including carefully evaluated legal or medical support tools
+
+| Consideration | Smaller model | Larger model |
+|---|---|---|
+| Inference cost | Often lower | Often higher |
+| Latency | Often lower | Can be higher |
+| Deployment footprint | Often smaller | Often larger |
+| Complex reasoning and broad knowledge | May be more limited | May perform better, depending on the model |
+| Best choice | Narrow, well-defined tasks | Tasks that justify additional capability and cost |
+
+**Example:** A help desk receives thousands of short tickets each day. A small model fine-tuned or prompted to categorize tickets as “billing,” “login,” or “delivery” may be more cost-effective than using a large model for every ticket. Evaluate accuracy, latency, privacy, and error-handling before deployment.
+
+## 24. What Is Knowledge Distillation?
+
+**Knowledge distillation** is a technique for training a smaller **student model** to reproduce useful behavior from a larger **teacher model**. The goal is to retain as much task performance as practical while reducing inference cost or deployment requirements.
+
+### Distillation workflow
+
+```mermaid
+flowchart TD
+    D["Training inputs"] --> T["Teacher model"]
+    T --> O["Teacher outputs or soft targets"]
+    D --> S["Student model"]
+    O --> L["Distillation loss"]
+    S --> L
+    L --> U["Update student parameters"]
+    U --> S
+    S --> E["Evaluate student quality and efficiency"]
+```
+
+**Typical process:**
+1. Choose a capable teacher model and define the target task.
+2. Prepare representative training inputs.
+3. Generate teacher outputs, labels, or probability distributions as appropriate.
+4. Train the student to match the desired teacher behavior, often alongside ordinary task labels.
+5. Evaluate the student on held-out examples and deployment requirements.
+
+**Example:** A large model generates or labels representative support-ticket examples. A smaller student is trained to classify new tickets into the same categories. The student can be deployed at lower cost if it meets the required quality threshold.
+
+**Important:** Distillation does not guarantee that the student matches the teacher. It may inherit teacher mistakes or lose capabilities, so compare both models on representative test data, including edge cases.
+
+## 25. What Is Quantization?
+
+**Quantization** reduces the numerical precision used to represent model weights and sometimes activations. For example, a model may use lower-bit representations instead of storing all weights in 32-bit floating-point format. This can reduce memory use and may improve inference speed, depending on hardware and implementation.
+
+### Conceptual quantization diagram
+
+```mermaid
+flowchart LR
+    A["Trained model weights"] --> B["Quantization method"]
+    B --> C["Lower-precision representation"]
+    C --> D["Smaller memory footprint"]
+    C --> E["Potentially faster inference"]
+    C --> F["Evaluate quality after quantization"]
+```
+
+**Illustrative storage comparison:** If the same number of weights could be represented at the stated bit widths, the raw weight storage per parameter would be:
+
+| Precision | Bits per weight | Approximate raw storage per weight |
+|---|---:|---:|
+| 32-bit | 32 | 4 bytes |
+| 16-bit | 16 | 2 bytes |
+| 8-bit | 8 | 1 byte |
+| 4-bit | 4 | 0.5 byte |
+
+These figures are theoretical raw storage estimates; real model memory also includes metadata, scales, runtime buffers, activations, and other overhead.
+
+**Example:** A model is too large to fit comfortably in the memory available on a deployment machine. An engineer tests an 8-bit or 4-bit quantized version and measures memory, latency, and task quality. If the quality loss is acceptable, the quantized version may be a better deployment choice.
+
+### Two common quantization stages
+
+1. **Post-training quantization (PTQ):** Quantize a model after its main training process. Some methods use a calibration dataset to estimate activation ranges.
+2. **Quantization-aware training (QAT):** Simulate quantization effects during training so the model can adapt to lower precision before deployment.
+
+**How distillation differs from quantization:** Distillation trains a student model to imitate a teacher; quantization changes the numerical representation used by a model. They can also be combined when evaluation shows a benefit.
